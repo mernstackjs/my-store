@@ -9,9 +9,20 @@ import routes from './routers/index.js';
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+const allowedOrigins = (process.env.FRONTEND_URL || '')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL,
+    origin(origin, cb) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        cb(null, true);
+      } else {
+        cb(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
   }),
 );
